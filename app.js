@@ -653,7 +653,7 @@ async function askAIForFood(foodName) {
 Réponds UNIQUEMENT avec un objet JSON strict au format exact suivant, sans aucun autre texte (n'inclus pas de balises markdown comme \`\`\`json) :
 {"cal": 120, "prot": 10.5, "carbs": 15.2, "fat": 3.1}`;
 
-    const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+    const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
