@@ -515,12 +515,13 @@ function normalizeSearch(str) {
 }
 
 function searchFood() {
-  const q = normalizeSearch(document.getElementById('food-search').value.trim());
+  const rawQ = document.getElementById('food-search').value.trim();
+  const q = normalizeSearch(rawQ);
   const container = document.getElementById('food-results');
   container.innerHTML = '';
   if (q.length < 2) return;
 
-  // 1. Cherche dans la base locale
+  // 1. Cherche dans la base locale (insensible aux accents)
   const localResults = FOOD_DB.filter(f => normalizeSearch(f.name).includes(q));
   
   // 2. Cherche dans le cache hors-ligne
@@ -550,7 +551,7 @@ function searchFood() {
       searchIndicator.innerHTML = '🔍 Recherche en ligne...';
       container.appendChild(searchIndicator);
 
-      const resp = await fetch(`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(q)}&search_simple=1&action=process&json=1&page_size=8&fields=product_name_fr,product_name,nutriments,image_small_url&lc=fr`);
+      const resp = await fetch(`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(rawQ)}&search_simple=1&action=process&json=1&page_size=8&fields=product_name_fr,product_name,nutriments&lc=fr&cc=fr`);
       const data = await resp.json();
       
       searchIndicator.remove();
