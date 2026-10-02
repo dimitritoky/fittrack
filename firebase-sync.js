@@ -33,10 +33,13 @@ async function initFirebase() {
   // Charge les scripts SDK
   await loadScripts(FIREBASE_SCRIPTS);
 
-  // Initialise l'app Firebase
-  const app = firebase.initializeApp(window.FIREBASE_CONFIG);
+  // Initialise l'app Firebase (garde contre double init)
+  const app = firebase.apps.length === 0
+    ? firebase.initializeApp(window.FIREBASE_CONFIG)
+    : firebase.app();
   auth = firebase.auth();
   db   = firebase.firestore();
+
 
   // Active la persistence offline (Firestore cache local)
   db.enablePersistence({ synchronizeTabs: true })
@@ -70,15 +73,32 @@ function loadScripts(urls) {
 // AUTHENTIFICATION GOOGLE
 // ==========================================
 async function signInWithGoogle() {
-  if (!auth) return;
+  if (!auth) {
+    console.error('Firebase Auth non initialisé');
+    return;
+  }
   try {
     const provider = new firebase.auth.GoogleAuthProvider();
+    provider.addScope('profile');
+    provider.addScope('email');
     await auth.signInWithPopup(provider);
   } catch(e) {
-    console.error('Erreur connexion:', e);
-    showToastSync('❌ Erreur de connexion : ' + e.message, 'error');
+    console.error('Erreur connexion popup:', e.code, e.message);
+    // Si popup bloquée → utilise la redirection
+    if (e.code === 'auth/popup-blocked' || e.code === 'auth/cancelled-popup-request') {
+      try {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        await auth.signInWithRedirect(provider);
+      } catch(e2) {
+        console.error('Erreur connexion redirect:', e2);
+        if (typeof toast === 'function') toast('❌ Erreur : ' + e2.message, 'error');
+      }
+    } else {
+      if (typeof toast === 'function') toast('❌ ' + (e.message || e.code), 'error');
+    }
   }
 }
+
 
 async function signOut() {
   if (!auth) return;
@@ -241,8 +261,10 @@ function scheduleSave(stateToSave) {
 // UI — AUTH & SYNC STATUS
 // ==========================================
 function renderAuthUI(user) {
-  const container = document.getElementById('auth-container');
-  if (!container) return;
+  const containers = document.querySelectorAll('.firebase-auth-container');
+  if (containers.length === 0) return;
+
+  containers.forEach(container => {
 
   if (!window.FIREBASE_CONFIGURED) {
     container.innerHTML = `
@@ -289,6 +311,7 @@ function renderAuthUI(user) {
         </button>
       </div>`;
   }
+  });
 }
 
 function updateSyncStatus(status) {
@@ -305,8 +328,9 @@ function updateSyncStatus(status) {
 }
 
 function showToastSync(msg, type = 'info') {
-  if (window.toast) window.toast(msg, type);
+  if (typeof toast === 'function') toast(msg, type);
 }
+
 
 function showFirebaseHelp() {
   const el = document.getElementById('firebase-help-modal');

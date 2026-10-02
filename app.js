@@ -49,7 +49,7 @@ window.refreshAllUI = function() {
 };
 
 // Expose toast pour firebase-sync.js
-window.toast = function(msg, type) { toast(msg, type); };
+// toast() est déjà global — accessible depuis firebase-sync.js sans wrapper
 
 // ==========================================
 // FOOD DATABASE (kcal/100g + macros)

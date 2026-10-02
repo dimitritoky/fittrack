@@ -115,10 +115,18 @@
 }
 
 /* Sidebar collapsed — hide auth text */
+/* Sidebar collapsed — hide auth text */
 .sidebar.collapsed .auth-user-info,
 .sidebar.collapsed .auth-info-text div,
 .sidebar.collapsed .auth-google-btn span,
 .sidebar.collapsed .auth-signout-btn { display: none; }
+
+/* Masquer la carte auth mobile sur PC */
+.mobile-auth-card {
+  display: none;
+  margin-bottom: 20px;
+}
+
 
 /* ---- PWA Install Banner ---- */
 .pwa-banner {
@@ -255,6 +263,11 @@ body.pwa-banner-visible .sidebar { top: 52px; }
   .topbar { padding: 0 16px; }
   .topbar-date { display: none; }
   .score-label { display: none; }
+
+  /* Auth mobile switch */
+  .sidebar-auth { display: none !important; }
+  .mobile-auth-card { display: block; }
+
 
   /* Page padding */
   .page { padding: 16px 12px; }

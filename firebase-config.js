@@ -25,18 +25,18 @@
    }
    ========================================== */
 
-const FIREBASE_CONFIG = {
-  apiKey:            "AIzaSyDyn065Y8OXrPKLxLd1SmkekOTXpLkmOBQ",
-  authDomain:        "fittrack-dimitri.firebaseapp.com",
-  projectId:         "fittrack-dimitri",
-  storageBucket:     "fittrack-dimitri.firebasestorage.app",
+const firebaseConfig = {
+  apiKey: "AIzaSyDynO65Y8OXrPKLxLd1SmkekOTXpLkmOBQ",
+  authDomain: "fittrack-dimitri.firebaseapp.com",
+  projectId: "fittrack-dimitri",
+  storageBucket: "fittrack-dimitri.firebasestorage.app",
   messagingSenderId: "366186170683",
-  appId:             "1:366186170683:web:441fb07c82928a4a124f1e",
+  appId: "1:366186170683:web:441fb07c82928a4a124f1e"
 };
 
 
 // ✅ Export pour firebase-sync.js
-window.FIREBASE_CONFIG = FIREBASE_CONFIG;
+window.FIREBASE_CONFIG = firebaseConfig;
 
 // Vérifie si la config est remplie
-window.FIREBASE_CONFIGURED = FIREBASE_CONFIG.apiKey !== "COLLE_TON_API_KEY_ICI";
+window.FIREBASE_CONFIGURED = firebaseConfig.apiKey !== "COLLE_TON_API_KEY_ICI";

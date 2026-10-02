@@ -61,7 +61,7 @@
     </a>
   </nav>
   <!-- Auth Panel in Sidebar -->
-  <div class="sidebar-auth" id="auth-container">
+  <div class="sidebar-auth firebase-auth-container">
     <!-- Populated by firebase-sync.js -->
     <div class="auth-loading">⏳</div>
   </div>
@@ -433,6 +433,12 @@
       <h1>👤 Mon Profil</h1>
       <p class="subtitle">Paramètres personnels pour des calculs précis</p>
     </div>
+    
+    <!-- Auth Container pour Mobile -->
+    <div class="card firebase-auth-container mobile-auth-card">
+      <div class="auth-loading">⏳ Chargement de la synchronisation...</div>
+    </div>
+    
     <div class="two-col">
       <div class="card form-card">
         <h2 class="form-title">Informations personnelles</h2>
