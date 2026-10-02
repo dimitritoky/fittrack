@@ -820,3 +820,62 @@ textarea.input-field { resize: vertical; min-height: 60px; }
   .kpi-grid { grid-template-columns: 1fr; }
   .sport-guide-grid { grid-template-columns: 1fr; }
 }
+
+/* ==========================================
+   FOOD SEARCH ENHANCEMENTS
+   ========================================== */
+.qty-unit-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.qty-unit-row .input-field:first-child {
+  flex: 1;
+  min-width: 60px;
+}
+.unit-select {
+  flex: 1.5;
+  min-width: 100px;
+  cursor: pointer;
+}
+.qty-grams-hint {
+  font-size: 11px;
+  color: var(--green);
+  font-weight: 600;
+  margin-top: 4px;
+  display: block;
+}
+.api-search-indicator {
+  text-align: center;
+  padding: 10px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+.food-results-separator {
+  padding: 8px 12px;
+  font-size: 11px;
+  color: var(--blue);
+  font-weight: 600;
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+}
+.food-source-tag {
+  display: inline-block;
+  font-size: 9px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(79,195,247,0.15);
+  color: var(--blue);
+  margin-left: 4px;
+  vertical-align: middle;
+  font-weight: 700;
+}
+.food-source-tag.cache {
+  background: rgba(61,255,160,0.1);
+  color: var(--green);
+}

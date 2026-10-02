@@ -56,64 +56,86 @@ window.refreshAllUI = function() {
 // ==========================================
 const FOOD_DB = [
   // Fruits
-  { name: 'Pomme',             cal: 52,  prot: 0.3, carbs: 14, fat: 0.2, emoji: '🍎' },
-  { name: 'Banane',            cal: 89,  prot: 1.1, carbs: 23, fat: 0.3, emoji: '🍌' },
-  { name: 'Orange',            cal: 47,  prot: 0.9, carbs: 12, fat: 0.1, emoji: '🍊' },
+  { name: 'Pomme',             cal: 52,  prot: 0.3, carbs: 14, fat: 0.2, emoji: '🍎', unit: 'pomme', unitG: 180 },
+  { name: 'Banane',            cal: 89,  prot: 1.1, carbs: 23, fat: 0.3, emoji: '🍌', unit: 'banane', unitG: 120 },
+  { name: 'Orange',            cal: 47,  prot: 0.9, carbs: 12, fat: 0.1, emoji: '🍊', unit: 'orange', unitG: 150 },
   { name: 'Fraises',           cal: 32,  prot: 0.7, carbs: 7.7, fat: 0.3, emoji: '🍓' },
   { name: 'Raisin',            cal: 69,  prot: 0.7, carbs: 18, fat: 0.2, emoji: '🍇' },
   { name: 'Myrtilles',         cal: 57,  prot: 0.7, carbs: 14, fat: 0.3, emoji: '🫐' },
   // Légumes
   { name: 'Brocoli',           cal: 34,  prot: 2.8, carbs: 7,  fat: 0.4, emoji: '🥦' },
-  { name: 'Carotte',           cal: 41,  prot: 0.9, carbs: 10, fat: 0.2, emoji: '🥕' },
-  { name: 'Tomate',            cal: 18,  prot: 0.9, carbs: 3.9, fat: 0.2, emoji: '🍅' },
+  { name: 'Carotte',           cal: 41,  prot: 0.9, carbs: 10, fat: 0.2, emoji: '🥕', unit: 'carotte', unitG: 80 },
+  { name: 'Tomate',            cal: 18,  prot: 0.9, carbs: 3.9, fat: 0.2, emoji: '🍅', unit: 'tomate', unitG: 120 },
   { name: 'Épinards',          cal: 23,  prot: 2.9, carbs: 3.6, fat: 0.4, emoji: '🥬' },
-  { name: 'Courgette',         cal: 17,  prot: 1.2, carbs: 3.1, fat: 0.3, emoji: '🥒' },
-  { name: 'Avocat',            cal: 160, prot: 2,   carbs: 9,  fat: 15,  emoji: '🥑' },
+  { name: 'Courgette',         cal: 17,  prot: 1.2, carbs: 3.1, fat: 0.3, emoji: '🥒', unit: 'courgette', unitG: 200 },
+  { name: 'Avocat',            cal: 160, prot: 2,   carbs: 9,  fat: 15,  emoji: '🥑', unit: 'avocat', unitG: 150 },
   // Protéines
-  { name: 'Blanc de poulet',   cal: 165, prot: 31,  carbs: 0,  fat: 3.6, emoji: '🍗' },
-  { name: 'Steak bœuf (maigre)', cal: 200, prot: 26, carbs: 0, fat: 10,  emoji: '🥩' },
-  { name: 'Saumon',            cal: 208, prot: 20,  carbs: 0,  fat: 13,  emoji: '🐟' },
-  { name: 'Thon en boîte',     cal: 132, prot: 28,  carbs: 0,  fat: 1.7, emoji: '🐟' },
-  { name: 'Œufs entiers',      cal: 155, prot: 13,  carbs: 1.1, fat: 11, emoji: '🥚' },
+  { name: 'Blanc de poulet',   cal: 165, prot: 31,  carbs: 0,  fat: 3.6, emoji: '🍗', unit: 'filet', unitG: 150 },
+  { name: 'Steak bœuf (maigre)', cal: 200, prot: 26, carbs: 0, fat: 10,  emoji: '🥩', unit: 'steak', unitG: 150 },
+  { name: 'Saumon',            cal: 208, prot: 20,  carbs: 0,  fat: 13,  emoji: '🐟', unit: 'pavé', unitG: 150 },
+  { name: 'Thon en boîte',     cal: 132, prot: 28,  carbs: 0,  fat: 1.7, emoji: '🐟', unit: 'boîte', unitG: 130 },
+  { name: 'Œuf',               cal: 155, prot: 13,  carbs: 1.1, fat: 11, emoji: '🥚', unit: 'œuf', unitG: 60 },
   { name: 'Crevettes',         cal: 99,  prot: 24,  carbs: 0,  fat: 0.3, emoji: '🦐' },
-  { name: 'Jambon blanc',      cal: 107, prot: 19,  carbs: 0.6, fat: 3,  emoji: '🍖' },
+  { name: 'Jambon blanc',      cal: 107, prot: 19,  carbs: 0.6, fat: 3,  emoji: '🍖', unit: 'tranche', unitG: 30 },
   // Laitages
-  { name: 'Yaourt nature 0%',  cal: 54,  prot: 5.7, carbs: 7.7, fat: 0.1, emoji: '🥛' },
-  { name: 'Yaourt grec',       cal: 97,  prot: 9,   carbs: 3.6, fat: 5,  emoji: '🥛' },
-  { name: 'Fromage blanc 0%',  cal: 47,  prot: 8,   carbs: 4,  fat: 0.2, emoji: '🫙' },
-  { name: 'Lait demi-écrémé',  cal: 47,  prot: 3.4, carbs: 4.7, fat: 1.6, emoji: '🥛' },
-  { name: 'Emmental',          cal: 378, prot: 27,  carbs: 0,  fat: 30,  emoji: '🧀' },
+  { name: 'Yaourt nature 0%',  cal: 54,  prot: 5.7, carbs: 7.7, fat: 0.1, emoji: '🥛', unit: 'pot', unitG: 125 },
+  { name: 'Yaourt grec',       cal: 97,  prot: 9,   carbs: 3.6, fat: 5,  emoji: '🥛', unit: 'pot', unitG: 150 },
+  { name: 'Fromage blanc 0%',  cal: 47,  prot: 8,   carbs: 4,  fat: 0.2, emoji: '🫙', unit: 'pot', unitG: 100 },
+  { name: 'Lait demi-écrémé',  cal: 47,  prot: 3.4, carbs: 4.7, fat: 1.6, emoji: '🥛', unit: 'verre', unitG: 200 },
+  { name: 'Emmental',          cal: 378, prot: 27,  carbs: 0,  fat: 30,  emoji: '🧀', unit: 'portion', unitG: 30 },
   // Féculents
-  { name: 'Riz cuit',          cal: 130, prot: 2.7, carbs: 28, fat: 0.3, emoji: '🍚' },
-  { name: 'Pâtes cuites',      cal: 158, prot: 5.8, carbs: 31, fat: 0.9, emoji: '🍝' },
-  { name: 'Pain complet',      cal: 247, prot: 9,   carbs: 48, fat: 3.4, emoji: '🍞' },
-  { name: 'Pain blanc',        cal: 267, prot: 9,   carbs: 55, fat: 3,   emoji: '🥖' },
+  { name: 'Riz cuit',          cal: 130, prot: 2.7, carbs: 28, fat: 0.3, emoji: '🍚', unit: 'assiette', unitG: 200 },
+  { name: 'Pâtes cuites',      cal: 158, prot: 5.8, carbs: 31, fat: 0.9, emoji: '🍝', unit: 'assiette', unitG: 200 },
+  { name: 'Pain complet',      cal: 247, prot: 9,   carbs: 48, fat: 3.4, emoji: '🍞', unit: 'tranche', unitG: 30 },
+  { name: 'Pain blanc',        cal: 267, prot: 9,   carbs: 55, fat: 3,   emoji: '🥖', unit: 'morceau', unitG: 50 },
   { name: 'Quinoa cuit',       cal: 120, prot: 4.4, carbs: 22, fat: 1.9, emoji: '🌾' },
-  { name: 'Pomme de terre',    cal: 77,  prot: 2,   carbs: 17, fat: 0.1, emoji: '🥔' },
-  { name: 'Patate douce',      cal: 86,  prot: 1.6, carbs: 20, fat: 0.1, emoji: '🍠' },
-  { name: 'Flocons d\'avoine', cal: 370, prot: 13,  carbs: 66, fat: 7,   emoji: '🌾' },
+  { name: 'Pomme de terre',    cal: 77,  prot: 2,   carbs: 17, fat: 0.1, emoji: '🥔', unit: 'pomme de terre', unitG: 150 },
+  { name: 'Patate douce',      cal: 86,  prot: 1.6, carbs: 20, fat: 0.1, emoji: '🍠', unit: 'patate', unitG: 200 },
+  { name: 'Flocons d\'avoine', cal: 370, prot: 13,  carbs: 66, fat: 7,   emoji: '🌾', unit: 'portion', unitG: 40 },
   // Légumineuses
   { name: 'Lentilles cuites',  cal: 116, prot: 9,   carbs: 20, fat: 0.4, emoji: '🫘' },
   { name: 'Pois chiches',      cal: 164, prot: 9,   carbs: 27, fat: 2.6, emoji: '🫘' },
   // Huiles & matières grasses
-  { name: 'Huile d\'olive',    cal: 884, prot: 0,   carbs: 0,  fat: 100, emoji: '🫒' },
-  { name: 'Beurre',            cal: 717, prot: 0.9, carbs: 0.1, fat: 81, emoji: '🧈' },
+  { name: 'Huile d\'olive',    cal: 884, prot: 0,   carbs: 0,  fat: 100, emoji: '🫒', unit: 'cuillère', unitG: 10 },
+  { name: 'Beurre',            cal: 717, prot: 0.9, carbs: 0.1, fat: 81, emoji: '🧈', unit: 'noisette', unitG: 10 },
   // Boissons
-  { name: 'Jus d\'orange',     cal: 45,  prot: 0.7, carbs: 10, fat: 0.2, emoji: '🥤' },
-  { name: 'Lait végétal avoine', cal: 46, prot: 1.2, carbs: 9, fat: 1.2, emoji: '🥤' },
+  { name: 'Jus d\'orange',     cal: 45,  prot: 0.7, carbs: 10, fat: 0.2, emoji: '🥤', unit: 'verre', unitG: 200 },
+  { name: 'Lait végétal avoine', cal: 46, prot: 1.2, carbs: 9, fat: 1.2, emoji: '🥤', unit: 'verre', unitG: 200 },
   // Sport / suppléments
-  { name: 'Whey protéine',     cal: 379, prot: 80,  carbs: 5,  fat: 4,   emoji: '💊' },
-  { name: 'Barre de céréales', cal: 380, prot: 6,   carbs: 70, fat: 8,   emoji: '🍫' },
-  { name: 'Amandes',           cal: 579, prot: 21,  carbs: 22, fat: 50,  emoji: '🥜' },
-  { name: 'Noix',              cal: 654, prot: 15,  carbs: 14, fat: 65,  emoji: '🥜' },
+  { name: 'Whey protéine',     cal: 379, prot: 80,  carbs: 5,  fat: 4,   emoji: '💊', unit: 'dose', unitG: 30 },
+  { name: 'Barre de céréales', cal: 380, prot: 6,   carbs: 70, fat: 8,   emoji: '🍫', unit: 'barre', unitG: 35 },
+  { name: 'Amandes',           cal: 579, prot: 21,  carbs: 22, fat: 50,  emoji: '🥜', unit: 'poignée', unitG: 30 },
+  { name: 'Noix',              cal: 654, prot: 15,  carbs: 14, fat: 65,  emoji: '🥜', unit: 'poignée', unitG: 30 },
   // Plats courants
-  { name: 'Pizza margherita',  cal: 266, prot: 11,  carbs: 33, fat: 10,  emoji: '🍕' },
-  { name: 'Burger bœuf',       cal: 295, prot: 17,  carbs: 24, fat: 14,  emoji: '🍔' },
-  { name: 'Salade César',      cal: 120, prot: 6,   carbs: 5,  fat: 9,   emoji: '🥗' },
-  { name: 'Soupe de légumes',  cal: 45,  prot: 2,   carbs: 8,  fat: 0.5, emoji: '🍲' },
-  { name: 'Chocolat noir 70%', cal: 598, prot: 8,   carbs: 46, fat: 43,  emoji: '🍫' },
-  { name: 'Miel',              cal: 304, prot: 0.3, carbs: 82, fat: 0,   emoji: '🍯' },
+  { name: 'Pizza margherita',  cal: 266, prot: 11,  carbs: 33, fat: 10,  emoji: '🍕', unit: 'part', unitG: 150 },
+  { name: 'Burger bœuf',       cal: 295, prot: 17,  carbs: 24, fat: 14,  emoji: '🍔', unit: 'burger', unitG: 200 },
+  { name: 'Salade César',      cal: 120, prot: 6,   carbs: 5,  fat: 9,   emoji: '🥗', unit: 'bol', unitG: 250 },
+  { name: 'Soupe de légumes',  cal: 45,  prot: 2,   carbs: 8,  fat: 0.5, emoji: '🍲', unit: 'bol', unitG: 300 },
+  { name: 'Chocolat noir 70%', cal: 598, prot: 8,   carbs: 46, fat: 43,  emoji: '🍫', unit: 'carré', unitG: 10 },
+  { name: 'Miel',              cal: 304, prot: 0.3, carbs: 82, fat: 0,   emoji: '🍯', unit: 'cuillère', unitG: 15 },
 ];
+
+// ==========================================
+// FOOD CACHE (aliments recherchés en ligne)
+// ==========================================
+const FOOD_CACHE_KEY = 'fittrack_food_cache';
+let foodCache = [];
+function loadFoodCache() {
+  try {
+    const raw = localStorage.getItem(FOOD_CACHE_KEY);
+    if (raw) foodCache = JSON.parse(raw);
+  } catch(e) { foodCache = []; }
+}
+function saveFoodCache() {
+  localStorage.setItem(FOOD_CACHE_KEY, JSON.stringify(foodCache));
+}
+function addToFoodCache(food) {
+  if (foodCache.find(f => f.name.toLowerCase() === food.name.toLowerCase())) return;
+  foodCache.push(food);
+  if (foodCache.length > 500) foodCache.shift();
+  saveFoodCache();
+}
+loadFoodCache();
 
 // ==========================================
 // MET VALUES (Metabolic Equivalent of Task)
@@ -482,23 +504,96 @@ function closeFoodModal(event) {
   }
 }
 
+let searchTimeout = null;
+let selectedFoodBase = null;
+
 function searchFood() {
   const q = document.getElementById('food-search').value.toLowerCase().trim();
   const container = document.getElementById('food-results');
   container.innerHTML = '';
-  if (q.length < 1) return;
-  const results = FOOD_DB.filter(f => f.name.toLowerCase().includes(q)).slice(0, 12);
-  if (results.length === 0) {
-    container.innerHTML = '<p style="color:#4a5c7a;font-size:12px;text-align:center;padding:10px">Aucun aliment trouvé. Ajoutez-le manuellement.</p>';
-    return;
+  if (q.length < 2) return;
+
+  // 1. Cherche dans la base locale
+  const localResults = FOOD_DB.filter(f => f.name.toLowerCase().includes(q));
+  
+  // 2. Cherche dans le cache hors-ligne
+  const cacheResults = foodCache.filter(f =>
+    f.name.toLowerCase().includes(q) &&
+    !localResults.find(l => l.name.toLowerCase() === f.name.toLowerCase())
+  );
+
+  const combined = [...localResults, ...cacheResults].slice(0, 10);
+
+  if (combined.length > 0) {
+    renderFoodResults(combined, container);
   }
+
+  // 3. Cherche en ligne via OpenFoodFacts (avec délai)
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(async () => {
+    if (!navigator.onLine) {
+      if (combined.length === 0) {
+        container.innerHTML = '<p style="color:#4a5c7a;font-size:12px;text-align:center;padding:10px">📶 Hors-ligne — aucun résultat local trouvé</p>';
+      }
+      return;
+    }
+    try {
+      const searchIndicator = document.createElement('div');
+      searchIndicator.className = 'api-search-indicator';
+      searchIndicator.innerHTML = '🔍 Recherche en ligne...';
+      container.appendChild(searchIndicator);
+
+      const resp = await fetch(`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(q)}&search_simple=1&action=process&json=1&page_size=8&fields=product_name_fr,product_name,nutriments,image_small_url&lc=fr`);
+      const data = await resp.json();
+      
+      searchIndicator.remove();
+
+      const apiResults = (data.products || []).filter(p => {
+        const name = p.product_name_fr || p.product_name;
+        return name && p.nutriments && p.nutriments['energy-kcal_100g'] !== undefined;
+      }).map(p => {
+        const name = p.product_name_fr || p.product_name;
+        return {
+          name: name.length > 40 ? name.substring(0, 40) + '…' : name,
+          cal:   +(p.nutriments['energy-kcal_100g'] || 0).toFixed(1),
+          prot:  +(p.nutriments['proteins_100g'] || 0).toFixed(1),
+          carbs: +(p.nutriments['carbohydrates_100g'] || 0).toFixed(1),
+          fat:   +(p.nutriments['fat_100g'] || 0).toFixed(1),
+          emoji: '🌐',
+          source: 'openfoodfacts',
+        };
+      }).filter(f => !combined.find(c => c.name.toLowerCase() === f.name.toLowerCase()));
+
+      if (apiResults.length > 0) {
+        if (combined.length > 0) {
+          const sep = document.createElement('div');
+          sep.className = 'food-results-separator';
+          sep.innerHTML = '🌐 Résultats en ligne (OpenFoodFacts)';
+          container.appendChild(sep);
+        }
+        renderFoodResults(apiResults, container);
+        apiResults.forEach(f => addToFoodCache(f));
+      } else if (combined.length === 0) {
+        container.innerHTML = '<p style="color:#4a5c7a;font-size:12px;text-align:center;padding:10px">Aucun aliment trouvé. Ajoutez-le manuellement.</p>';
+      }
+    } catch(e) {
+      console.warn('OpenFoodFacts search error:', e);
+    }
+  }, 500);
+}
+
+function renderFoodResults(results, container) {
   results.forEach(food => {
     const div = document.createElement('div');
     div.className = 'food-result-item';
+    const unitLabel = food.unit ? ` • 1 ${food.unit} = ${food.unitG}g` : '';
+    const sourceTag = food.source === 'openfoodfacts'
+      ? '<span class="food-source-tag">OFF</span>'
+      : (foodCache.find(f => f.name === food.name) ? '<span class="food-source-tag cache">💾</span>' : '');
     div.innerHTML = `
       <div>
-        <span class="food-result-name">${food.emoji || ''} ${food.name}</span>
-        <span class="food-result-info">P:${food.prot}g • G:${food.carbs}g • L:${food.fat}g pour 100g</span>
+        <span class="food-result-name">${food.emoji || '🍽️'} ${food.name} ${sourceTag}</span>
+        <span class="food-result-info">P:${food.prot}g • G:${food.carbs}g • L:${food.fat}g${unitLabel}</span>
       </div>
       <span class="food-result-cal">${food.cal} kcal/100g</span>`;
     div.addEventListener('click', () => selectFood(food));
@@ -507,23 +602,54 @@ function searchFood() {
 }
 
 function selectFood(food) {
+  selectedFoodBase = food;
   document.getElementById('manual-food-name').value = food.name;
-  document.getElementById('manual-food-qty').value = '100';
-  document.getElementById('manual-food-cal').value = food.cal;
-  document.getElementById('manual-food-prot').value = food.prot;
-  document.getElementById('manual-food-carbs').value = food.carbs;
-  document.getElementById('manual-food-fat').value = food.fat;
-  document.querySelector('.manual-food-form').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  // Auto-update on qty change
+  
+  const unitSelect = document.getElementById('manual-food-unit');
   const qtyInput = document.getElementById('manual-food-qty');
-  qtyInput.oninput = () => {
-    const qty = parseFloat(qtyInput.value) || 100;
-    const factor = qty / 100;
-    document.getElementById('manual-food-cal').value   = +(food.cal   * factor).toFixed(1);
-    document.getElementById('manual-food-prot').value  = +(food.prot  * factor).toFixed(1);
-    document.getElementById('manual-food-carbs').value = +(food.carbs * factor).toFixed(1);
-    document.getElementById('manual-food-fat').value   = +(food.fat   * factor).toFixed(1);
+  
+  if (food.unit) {
+    unitSelect.innerHTML = `<option value="g">grammes</option><option value="unit" selected>× ${food.unit} (${food.unitG}g)</option>`;
+    qtyInput.value = '1';
+    updateFoodFromQty(food, 1, 'unit');
+  } else {
+    unitSelect.innerHTML = '<option value="g">grammes</option>';
+    qtyInput.value = '100';
+    updateFoodFromQty(food, 100, 'g');
+  }
+  
+  document.querySelector('.manual-food-form').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  const updateFields = () => {
+    const qty = parseFloat(qtyInput.value) || 1;
+    const unit = unitSelect.value;
+    updateFoodFromQty(food, qty, unit);
   };
+  qtyInput.oninput = updateFields;
+  unitSelect.onchange = updateFields;
+  
+  if (food.source === 'openfoodfacts') addToFoodCache(food);
+}
+
+function updateFoodFromQty(food, qty, unit) {
+  let grams;
+  if (unit === 'unit' && food.unitG) {
+    grams = qty * food.unitG;
+  } else {
+    grams = qty;
+  }
+  const factor = grams / 100;
+  document.getElementById('manual-food-cal').value   = +(food.cal   * factor).toFixed(1);
+  document.getElementById('manual-food-prot').value  = +(food.prot  * factor).toFixed(1);
+  document.getElementById('manual-food-carbs').value = +(food.carbs * factor).toFixed(1);
+  document.getElementById('manual-food-fat').value   = +(food.fat   * factor).toFixed(1);
+  const gramsLabel = document.getElementById('qty-grams-label');
+  if (gramsLabel && unit === 'unit') {
+    gramsLabel.textContent = `= ${Math.round(grams)}g`;
+    gramsLabel.style.display = '';
+  } else if (gramsLabel) {
+    gramsLabel.style.display = 'none';
+  }
 }
 
 function addManualFood() {
