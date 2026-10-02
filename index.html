@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FitTrack — Suivi Santé & Fitness</title>
+  <meta name="description" content="Application de suivi poids, tour de taille, calories alimentaires et dépenses sportives. Musculation, footing, trail, basketball." />
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#0b0f1a" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="FitTrack" />
+  <link rel="apple-touch-icon" href="icon-512.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="firebase-config.js"></script>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="mobile.css" />
+</head>
+<body>
+<!-- PWA Install Banner -->
+<div class="pwa-banner" id="pwa-banner" style="display:none">
+  <div class="pwa-banner-content">
+    <span class="pwa-banner-icon">⚡</span>
+    <div>
+      <strong>Installer FitTrack</strong>
+      <span>Accès rapide depuis votre écran d'accueil</span>
+    </div>
+  </div>
+  <div class="pwa-banner-btns">
+    <button class="btn btn-primary btn-sm" id="pwa-install-btn" style="width:auto">Installer</button>
+    <button class="pwa-banner-close" id="pwa-banner-close">✕</button>
+  </div>
+</div>
+
+<!-- ====== SIDEBAR ====== -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">⚡</div>
+    <span class="logo-text">FitTrack</span>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="#" class="nav-item active" data-page="dashboard" id="nav-dashboard">
+      <span class="nav-icon">📊</span><span class="nav-label">Dashboard</span>
+    </a>
+    <a href="#" class="nav-item" data-page="mesures" id="nav-mesures">
+      <span class="nav-icon">⚖️</span><span class="nav-label">Mesures</span>
+    </a>
+    <a href="#" class="nav-item" data-page="alimentation" id="nav-alimentation">
+      <span class="nav-icon">🍽️</span><span class="nav-label">Alimentation</span>
+    </a>
+    <a href="#" class="nav-item" data-page="activite" id="nav-activite">
+      <span class="nav-icon">🏃</span><span class="nav-label">Activité</span>
+    </a>
+    <a href="#" class="nav-item" data-page="profil" id="nav-profil">
+      <span class="nav-icon">👤</span><span class="nav-label">Profil</span>
+    </a>
+  </nav>
+  <!-- Auth Panel in Sidebar -->
+  <div class="sidebar-auth" id="auth-container">
+    <!-- Populated by firebase-sync.js -->
+    <div class="auth-loading">⏳</div>
+  </div>
+  <button class="sidebar-toggle" id="sidebar-toggle" title="Réduire le menu">‹</button>
+</aside>
+
+<!-- ====== MAIN ====== -->
+<main class="main-content" id="main-content">
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="menu-btn" id="menu-btn">☰</button>
+      <div class="topbar-date" id="topbar-date"></div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-score" id="topbar-score">
+        <span class="score-label">Score journée</span>
+        <span class="score-value" id="score-value">—</span>
+      </div>
+      <div class="avatar">D</div>
+    </div>
+  </header>
+
+  <!-- ===== PAGE: DASHBOARD ===== -->
+  <section class="page active" id="page-dashboard">
+    <div class="page-header">
+      <h1>Mon Tableau de Bord</h1>
+      <p class="subtitle">Vue d'ensemble de votre progression</p>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card kpi-weight">
+        <div class="kpi-icon">⚖️</div>
+        <div class="kpi-info">
+          <span class="kpi-label">Poids actuel</span>
+          <span class="kpi-value" id="kpi-poids">— kg</span>
+          <span class="kpi-delta" id="kpi-poids-delta"></span>
+        </div>
+      </div>
+      <div class="kpi-card kpi-waist">
+        <div class="kpi-icon">📏</div>
+        <div class="kpi-info">
+          <span class="kpi-label">Tour de taille</span>
+          <span class="kpi-value" id="kpi-taille">— cm</span>
+          <span class="kpi-delta" id="kpi-taille-delta"></span>
+        </div>
+      </div>
+      <div class="kpi-card kpi-cal-in">
+        <div class="kpi-icon">🍽️</div>
+        <div class="kpi-info">
+          <span class="kpi-label">Calories ingérées</span>
+          <span class="kpi-value" id="kpi-cal-in">0 kcal</span>
+          <span class="kpi-delta" id="kpi-cal-in-sub">aujourd'hui</span>
+        </div>
+      </div>
+      <div class="kpi-card kpi-cal-out">
+        <div class="kpi-icon">🔥</div>
+        <div class="kpi-info">
+          <span class="kpi-label">Calories brûlées</span>
+          <span class="kpi-value" id="kpi-cal-out">0 kcal</span>
+          <span class="kpi-delta" id="kpi-cal-out-sub">sport aujourd'hui</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="charts-row">
+      <div class="card chart-card chart-weight-card">
+        <div class="card-header">
+          <span class="card-title">📈 Évolution du poids</span>
+          <div class="chart-period-btns">
+            <button class="period-btn active" data-period="7">7j</button>
+            <button class="period-btn" data-period="30">30j</button>
+            <button class="period-btn" data-period="90">90j</button>
+          </div>
+        </div>
+        <div class="chart-wrapper"><canvas id="chart-weight"></canvas></div>
+      </div>
+      <div class="card calorie-ring-card">
+        <div class="card-header"><span class="card-title">🎯 Balance calorique</span></div>
+        <div class="calorie-ring-wrapper">
+          <canvas id="chart-calories-ring" width="180" height="180"></canvas>
+          <div class="ring-center" id="ring-center">
+            <span class="ring-value" id="ring-cal-value">0</span>
+            <span class="ring-label">kcal net</span>
+          </div>
+        </div>
+        <div class="calorie-legend">
+          <div class="cal-legend-item"><span class="dot dot-green"></span><span>Ingérées</span><strong id="leg-in">0</strong></div>
+          <div class="cal-legend-item"><span class="dot dot-orange"></span><span>Brûlées sport</span><strong id="leg-out">0</strong></div>
+          <div class="cal-legend-item"><span class="dot dot-blue"></span><span>Métabolisme</span><strong id="leg-bmr">—</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Waist chart -->
+    <div class="card chart-card">
+      <div class="card-header"><span class="card-title">📏 Tour de taille</span></div>
+      <div class="chart-wrapper"><canvas id="chart-waist"></canvas></div>
+    </div>
+
+    <!-- IMC Card -->
+    <div class="card imc-card">
+      <div class="card-header"><span class="card-title">🧬 IMC & Santé</span></div>
+      <div class="imc-content" id="imc-content">
+        <p class="imc-hint">Renseignez votre profil pour calculer l'IMC.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== PAGE: MESURES ===== -->
+  <section class="page" id="page-mesures">
+    <div class="page-header">
+      <h1>⚖️ Mes Mesures</h1>
+      <p class="subtitle">Enregistrez votre poids et tour de taille</p>
+    </div>
+    <div class="two-col">
+      <div class="card form-card">
+        <h2 class="form-title">Nouvelle mesure</h2>
+        <div class="form-group">
+          <label for="input-date-mesure">Date</label>
+          <input type="date" id="input-date-mesure" class="input-field" />
+        </div>
+        <div class="form-group">
+          <label for="input-poids">Poids (kg)</label>
+          <input type="number" id="input-poids" class="input-field" placeholder="ex: 78.5" step="0.1" min="30" max="300" />
+        </div>
+        <div class="form-group">
+          <label for="input-taille-cm">Tour de taille (cm)</label>
+          <input type="number" id="input-taille-cm" class="input-field" placeholder="ex: 88" step="0.5" min="40" max="200" />
+        </div>
+        <div class="form-group">
+          <label for="input-notes-mesure">Notes (optionnel)</label>
+          <textarea id="input-notes-mesure" class="input-field" rows="2" placeholder="ex: après le sport, le matin..."></textarea>
+        </div>
+        <button class="btn btn-primary" id="btn-save-mesure">💾 Enregistrer la mesure</button>
+      </div>
+      <div class="card">
+        <h2 class="form-title">Historique récent</h2>
+        <div class="history-list" id="mesures-history"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== PAGE: ALIMENTATION ===== -->
+  <section class="page" id="page-alimentation">
+    <div class="page-header">
+      <h1>🍽️ Journal Alimentaire</h1>
+      <p class="subtitle">Suivez vos repas et calories</p>
+    </div>
+
+    <!-- Date selector -->
+    <div class="card date-selector-card">
+      <label for="alim-date">📅 Date du journal :</label>
+      <input type="date" id="alim-date" class="input-field inline-date" />
+      <div class="daily-cal-summary">
+        Total du jour : <strong id="daily-total-cal">0 kcal</strong>
+        <span id="daily-cal-vs-goal"></span>
+      </div>
+    </div>
+
+    <!-- Meals -->
+    <div class="meals-grid">
+      <div class="card meal-card" id="meal-matin">
+        <div class="meal-header">
+          <span class="meal-icon">☀️</span>
+          <div>
+            <h2 class="meal-title">Petit-déjeuner</h2>
+            <span class="meal-cal" id="cal-matin">0 kcal</span>
+          </div>
+          <button class="btn btn-sm btn-add" onclick="openFoodModal('matin')">+ Ajouter</button>
+        </div>
+        <div class="meal-items" id="items-matin"></div>
+      </div>
+
+      <div class="card meal-card" id="meal-midi">
+        <div class="meal-header">
+          <span class="meal-icon">🌤️</span>
+          <div>
+            <h2 class="meal-title">Déjeuner</h2>
+            <span class="meal-cal" id="cal-midi">0 kcal</span>
+          </div>
+          <button class="btn btn-sm btn-add" onclick="openFoodModal('midi')">+ Ajouter</button>
+        </div>
+        <div class="meal-items" id="items-midi"></div>
+      </div>
+
+      <div class="card meal-card" id="meal-soir">
+        <div class="meal-header">
+          <span class="meal-icon">🌙</span>
+          <div>
+            <h2 class="meal-title">Dîner</h2>
+            <span class="meal-cal" id="cal-soir">0 kcal</span>
+          </div>
+          <button class="btn btn-sm btn-add" onclick="openFoodModal('soir')">+ Ajouter</button>
+        </div>
+        <div class="meal-items" id="items-soir"></div>
+      </div>
+
+      <div class="card meal-card" id="meal-collation">
+        <div class="meal-header">
+          <span class="meal-icon">🍎</span>
+          <div>
+            <h2 class="meal-title">Collations</h2>
+            <span class="meal-cal" id="cal-collation">0 kcal</span>
+          </div>
+          <button class="btn btn-sm btn-add" onclick="openFoodModal('collation')">+ Ajouter</button>
+        </div>
+        <div class="meal-items" id="items-collation"></div>
+      </div>
+    </div>
+
+    <!-- Macro recap -->
+    <div class="card macro-recap-card">
+      <h2 class="form-title">Bilan macronutriments du jour</h2>
+      <div class="macro-bars">
+        <div class="macro-bar-item">
+          <div class="macro-bar-label"><span>🌾 Glucides</span><span id="macro-carbs">0g</span></div>
+          <div class="macro-bar-track"><div class="macro-bar-fill fill-carbs" id="bar-carbs" style="width:0%"></div></div>
+        </div>
+        <div class="macro-bar-item">
+          <div class="macro-bar-label"><span>🥩 Protéines</span><span id="macro-prot">0g</span></div>
+          <div class="macro-bar-track"><div class="macro-bar-fill fill-prot" id="bar-prot" style="width:0%"></div></div>
+        </div>
+        <div class="macro-bar-item">
+          <div class="macro-bar-label"><span>🧈 Lipides</span><span id="macro-fat">0g</span></div>
+          <div class="macro-bar-track"><div class="macro-bar-fill fill-fat" id="bar-fat" style="width:0%"></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== PAGE: ACTIVITE ===== -->
+  <section class="page" id="page-activite">
+    <div class="page-header">
+      <h1>🏃 Activité & Dépenses</h1>
+      <p class="subtitle">Calculez les calories brûlées lors de vos sports</p>
+    </div>
+
+    <div class="two-col">
+      <!-- Activity Form -->
+      <div class="card form-card">
+        <h2 class="form-title">Calculer une dépense</h2>
+        <div class="form-group">
+          <label for="act-date">Date</label>
+          <input type="date" id="act-date" class="input-field" />
+        </div>
+        <div class="form-group">
+          <label for="act-type">Type d'activité</label>
+          <select id="act-type" class="input-field" onchange="updateActivityForm()">
+            <option value="musculation">💪 Musculation</option>
+            <option value="footing">🏃 Footing / Course à pied</option>
+            <option value="trail">⛰️ Trail (avec dénivelé)</option>
+            <option value="basketball">🏀 Basketball</option>
+            <option value="velo">🚴 Vélo</option>
+            <option value="natation">🏊 Natation</option>
+            <option value="marche">🚶 Marche rapide</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="act-duration">Durée (minutes)</label>
+          <input type="number" id="act-duration" class="input-field" placeholder="ex: 60" min="1" max="600" />
+        </div>
+        <div class="form-group">
+          <label for="act-intensity">Intensité</label>
+          <select id="act-intensity" class="input-field">
+            <option value="faible">Faible (échauffement, récup)</option>
+            <option value="modere" selected>Modérée (effort soutenu)</option>
+            <option value="eleve">Élevée (compétition, HIIT)</option>
+          </select>
+        </div>
+
+        <!-- Trail specific fields -->
+        <div id="trail-fields" style="display:none;">
+          <div class="form-group">
+            <label for="trail-distance">Distance (km)</label>
+            <input type="number" id="trail-distance" class="input-field" placeholder="ex: 12" step="0.1" />
+          </div>
+          <div class="form-group">
+            <label for="trail-denivele">Dénivelé positif (m)</label>
+            <input type="number" id="trail-denivele" class="input-field" placeholder="ex: 800" />
+          </div>
+        </div>
+
+        <!-- Footing specific fields -->
+        <div id="footing-fields" style="display:none;">
+          <div class="form-group">
+            <label for="foot-distance">Distance (km)</label>
+            <input type="number" id="foot-distance" class="input-field" placeholder="ex: 8" step="0.1" />
+          </div>
+          <div class="form-group">
+            <label for="foot-vitesse">Vitesse moyenne (km/h)</label>
+            <input type="number" id="foot-vitesse" class="input-field" placeholder="ex: 10" step="0.5" />
+          </div>
+        </div>
+
+        <!-- Musculation specific fields -->
+        <div id="muscu-fields">
+          <div class="form-group">
+            <label for="muscu-type">Type de séance</label>
+            <select id="muscu-type" class="input-field">
+              <option value="full">Full body</option>
+              <option value="upper">Haut du corps</option>
+              <option value="lower">Bas du corps</option>
+              <option value="cardio-muscu">Circuit training</option>
+            </select>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" id="btn-calc-activity">⚡ Calculer & Ajouter</button>
+
+        <!-- Result preview -->
+        <div class="cal-result-box" id="cal-result-box" style="display:none;">
+          <div class="cal-result-main">
+            <span class="cal-result-icon">🔥</span>
+            <span class="cal-result-value" id="cal-result-value">0</span>
+            <span class="cal-result-unit">kcal brûlées</span>
+          </div>
+          <div class="cal-result-details" id="cal-result-details"></div>
+        </div>
+      </div>
+
+      <!-- Activity log -->
+      <div class="card">
+        <h2 class="form-title">Activités enregistrées</h2>
+        <div class="history-list" id="activity-history"></div>
+        <div class="activity-week-total">
+          <span>Total semaine :</span>
+          <strong id="week-cal-total">0 kcal</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sport guide cards -->
+    <h2 class="section-title">📚 Guide calories par sport</h2>
+    <div class="sport-guide-grid">
+      <div class="sport-guide-card">
+        <div class="sport-guide-icon">💪</div>
+        <h3>Musculation</h3>
+        <p>Faible: 200–300 kcal/h<br>Modérée: 300–450 kcal/h<br>Haute: 450–600 kcal/h</p>
+        <p class="sport-note">+ effet afterburn EPOC jusqu'à 48h</p>
+      </div>
+      <div class="sport-guide-card">
+        <div class="sport-guide-icon">🏃</div>
+        <h3>Footing</h3>
+        <p>8 km/h: ~480 kcal/h<br>10 km/h: ~600 kcal/h<br>12 km/h: ~750 kcal/h</p>
+        <p class="sport-note">~1 kcal par kg par km</p>
+      </div>
+      <div class="sport-guide-card">
+        <div class="sport-guide-icon">⛰️</div>
+        <h3>Trail</h3>
+        <p>+10% de dépense par 100m de D+<br>Dénivelé = facteur majeur<br>Sol instable = +15% effort</p>
+        <p class="sport-note">Parmi les sports les plus caloriques</p>
+      </div>
+      <div class="sport-guide-card">
+        <div class="sport-guide-icon">🏀</div>
+        <h3>Basketball</h3>
+        <p>Match: 500–700 kcal/h<br>Entraînement: 350–500 kcal/h<br>Rebonds/sprints courts</p>
+        <p class="sport-note">Sport complet haute intensité</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== PAGE: PROFIL ===== -->
+  <section class="page" id="page-profil">
+    <div class="page-header">
+      <h1>👤 Mon Profil</h1>
+      <p class="subtitle">Paramètres personnels pour des calculs précis</p>
+    </div>
+    <div class="two-col">
+      <div class="card form-card">
+        <h2 class="form-title">Informations personnelles</h2>
+        <div class="form-group">
+          <label for="profil-nom">Prénom</label>
+          <input type="text" id="profil-nom" class="input-field" placeholder="ex: Dimitri" />
+        </div>
+        <div class="form-group">
+          <label for="profil-age">Âge</label>
+          <input type="number" id="profil-age" class="input-field" placeholder="ex: 30" min="10" max="100" />
+        </div>
+        <div class="form-group">
+          <label for="profil-sexe">Sexe</label>
+          <select id="profil-sexe" class="input-field">
+            <option value="homme">Homme</option>
+            <option value="femme">Femme</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="profil-taille">Taille (cm)</label>
+          <input type="number" id="profil-taille" class="input-field" placeholder="ex: 178" min="100" max="250" />
+        </div>
+        <div class="form-group">
+          <label for="profil-objectif-poids">Poids objectif (kg)</label>
+          <input type="number" id="profil-objectif-poids" class="input-field" placeholder="ex: 75" step="0.5" />
+        </div>
+        <div class="form-group">
+          <label for="profil-objectif-cal">Objectif calorique quotidien (kcal)</label>
+          <input type="number" id="profil-objectif-cal" class="input-field" placeholder="ex: 2200" />
+          <small class="input-hint">Laissez vide pour calcul automatique (BMR × niveau d'activité)</small>
+        </div>
+        <div class="form-group">
+          <label for="profil-activite-niveau">Niveau d'activité général</label>
+          <select id="profil-activite-niveau" class="input-field">
+            <option value="1.2">Sédentaire (bureau, peu de sport)</option>
+            <option value="1.375">Légèrement actif (1-2 sports/sem)</option>
+            <option value="1.55" selected>Modérément actif (3-5 sports/sem)</option>
+            <option value="1.725">Très actif (sport intense 6-7j/sem)</option>
+            <option value="1.9">Extrêmement actif (athlète, 2x/jour)</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" id="btn-save-profil">💾 Sauvegarder le profil</button>
+      </div>
+
+      <div class="card">
+        <h2 class="form-title">📊 Calculs automatiques</h2>
+        <div class="auto-calcs" id="auto-calcs">
+          <p class="imc-hint">Renseignez votre profil pour voir les calculs.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ====== MODAL: FOOD ====== -->
+<div class="modal-overlay" id="food-modal" onclick="closeFoodModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-meal-title">Ajouter un aliment</h2>
+      <button class="modal-close" onclick="closeFoodModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="food-search-bar">
+        <input type="text" id="food-search" class="input-field" placeholder="🔍 Rechercher un aliment..." oninput="searchFood()" />
+      </div>
+      <div class="food-results" id="food-results"></div>
+
+      <div class="divider-or"><span>ou ajouter manuellement</span></div>
+
+      <div class="manual-food-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="manual-food-name">Nom</label>
+            <input type="text" id="manual-food-name" class="input-field" placeholder="ex: Yaourt nature" />
+          </div>
+          <div class="form-group">
+            <label for="manual-food-qty">Quantité (g)</label>
+            <input type="number" id="manual-food-qty" class="input-field" placeholder="150" min="1" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="manual-food-cal">Calories (kcal)</label>
+            <input type="number" id="manual-food-cal" class="input-field" placeholder="120" min="0" />
+          </div>
+          <div class="form-group">
+            <label for="manual-food-prot">Protéines (g)</label>
+            <input type="number" id="manual-food-prot" class="input-field" placeholder="10" min="0" />
+          </div>
+          <div class="form-group">
+            <label for="manual-food-carbs">Glucides (g)</label>
+            <input type="number" id="manual-food-carbs" class="input-field" placeholder="15" min="0" />
+          </div>
+          <div class="form-group">
+            <label for="manual-food-fat">Lipides (g)</label>
+            <input type="number" id="manual-food-fat" class="input-field" placeholder="3" min="0" />
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="addManualFood()">➕ Ajouter cet aliment</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Splash Screen -->
+<div class="splash" id="splash">
+  <div class="splash-logo">⚡</div>
+  <span class="splash-name">FitTrack</span>
+  <span class="splash-sub">Suivi Santé & Fitness</span>
+  <div class="splash-loader"><div class="splash-loader-bar"></div></div>
+</div>
+
+<script src="app.js"></script>
+<script src="firebase-sync.js"></script>
+</body>
+</html>
+
+
