@@ -536,7 +536,7 @@ function searchFood() {
     renderFoodResults(combined, container);
   }
 
-  // 3. Cherche en ligne via OpenFoodFacts (avec délai)
+  // 3. Cherche en ligne (multi-sources) avec délai
   clearTimeout(searchTimeout);
   searchTimeout = setTimeout(async () => {
     if (!navigator.onLine) {
@@ -545,49 +545,149 @@ function searchFood() {
       }
       return;
     }
+
+    const searchIndicator = document.createElement('div');
+    searchIndicator.className = 'api-search-indicator';
+    searchIndicator.innerHTML = '🔍 Recherche dans les bases de données...';
+    container.appendChild(searchIndicator);
+
+    let apiResults = [];
+
+    // --- SOURCE 1 : OpenFoodFacts (produits packagés) ---
     try {
-      const searchIndicator = document.createElement('div');
-      searchIndicator.className = 'api-search-indicator';
-      searchIndicator.innerHTML = '🔍 Recherche en ligne...';
-      container.appendChild(searchIndicator);
-
-      const resp = await fetch(`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(rawQ)}&search_simple=1&action=process&json=1&page_size=8&fields=product_name_fr,product_name,nutriments&lc=fr&cc=fr`);
-      const data = await resp.json();
-      
-      searchIndicator.remove();
-
-      const apiResults = (data.products || []).filter(p => {
+      const r1 = await fetch(`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(rawQ)}&search_simple=1&action=process&json=1&page_size=6&fields=product_name_fr,product_name,nutriments&lc=fr&cc=fr`);
+      const d1 = await r1.json();
+      const off = (d1.products || []).filter(p => {
         const name = p.product_name_fr || p.product_name;
-        return name && p.nutriments && p.nutriments['energy-kcal_100g'] !== undefined;
+        return name && p.nutriments && p.nutriments['energy-kcal_100g'] > 0;
       }).map(p => {
         const name = p.product_name_fr || p.product_name;
         return {
-          name: name.length > 40 ? name.substring(0, 40) + '…' : name,
+          name: name.length > 45 ? name.substring(0, 45) + '…' : name,
           cal:   +(p.nutriments['energy-kcal_100g'] || 0).toFixed(1),
           prot:  +(p.nutriments['proteins_100g'] || 0).toFixed(1),
           carbs: +(p.nutriments['carbohydrates_100g'] || 0).toFixed(1),
           fat:   +(p.nutriments['fat_100g'] || 0).toFixed(1),
-          emoji: '🌐',
-          source: 'openfoodfacts',
+          emoji: '🛒', source: 'openfoodfacts',
         };
-      }).filter(f => !combined.find(c => c.name.toLowerCase() === f.name.toLowerCase()));
+      }).slice(0, 5);
+      apiResults.push(...off);
+    } catch(e) { console.warn('OpenFoodFacts error:', e); }
 
-      if (apiResults.length > 0) {
-        if (combined.length > 0) {
-          const sep = document.createElement('div');
-          sep.className = 'food-results-separator';
-          sep.innerHTML = '🌐 Résultats en ligne (OpenFoodFacts)';
-          container.appendChild(sep);
-        }
-        renderFoodResults(apiResults, container);
-        apiResults.forEach(f => addToFoodCache(f));
-      } else if (combined.length === 0) {
-        container.innerHTML = '<p style="color:#4a5c7a;font-size:12px;text-align:center;padding:10px">Aucun aliment trouvé. Ajoutez-le manuellement.</p>';
-      }
-    } catch(e) {
-      console.warn('OpenFoodFacts search error:', e);
+    // --- SOURCE 2 : USDA FoodData Central (aliments génériques) ---
+    try {
+      const r2 = await fetch(`https://api.nal.usda.gov/fdc/v1/foods/search?query=${encodeURIComponent(rawQ)}&pageSize=5&api_key=DEMO_KEY`);
+      const d2 = await r2.json();
+      const usda = (d2.foods || []).filter(f => {
+        const n = f.foodNutrients || [];
+        return f.description && n.find(x => x.nutrientName === 'Energy');
+      }).map(f => {
+        const n = f.foodNutrients || [];
+        const get = (name) => +(n.find(x => x.nutrientName === name)?.value || 0).toFixed(1);
+        return {
+          name: f.description.length > 45 ? f.description.substring(0, 45) + '…' : f.description,
+          cal:   get('Energy'),
+          prot:  get('Protein'),
+          carbs: get('Carbohydrate, by difference'),
+          fat:   get('Total lipid (fat)'),
+          emoji: '🇺🇸', source: 'usda',
+        };
+      }).filter(f => !apiResults.find(a => normalizeSearch(a.name) === normalizeSearch(f.name)))
+        .slice(0, 4);
+      apiResults.push(...usda);
+    } catch(e) { console.warn('USDA error:', e); }
+
+    searchIndicator.remove();
+
+    // Filtrer les doublons avec les résultats locaux
+    apiResults = apiResults.filter(f => !combined.find(c => normalizeSearch(c.name) === normalizeSearch(f.name)));
+
+    // Affichage résultats en ligne
+    if (apiResults.length > 0) {
+      const sep = document.createElement('div');
+      sep.className = 'food-results-separator';
+      const sources = [...new Set(apiResults.map(f => f.source === 'openfoodfacts' ? '🛒 OpenFoodFacts' : '🇺🇸 USDA'))].join(' • ');
+      sep.innerHTML = `🌐 Résultats en ligne (${sources})`;
+      container.appendChild(sep);
+      renderFoodResults(apiResults, container);
+      apiResults.forEach(f => addToFoodCache(f));
     }
-  }, 500);
+
+    // --- SOURCE 3 : Bouton IA si rien trouvé ---
+    if (combined.length === 0 && apiResults.length === 0) {
+      container.innerHTML = `
+        <div style="text-align:center;padding:16px;">
+          <p style="color:#4a5c7a;font-size:12px;margin-bottom:12px;">Aucun aliment trouvé dans les bases de données.</p>
+          <button class="btn btn-primary" id="btn-ask-ai" onclick="askAIForFood('${rawQ.replace(/'/g, "\\'")}')">
+            🤖 Demander à l'IA (Gemini)
+          </button>
+          <p style="color:#4a5c7a;font-size:10px;margin-top:8px;">L'IA va estimer les valeurs nutritionnelles</p>
+        </div>`;
+    } else if (combined.length === 0 && apiResults.length > 0) {
+      // Proposer aussi l'IA en bas
+      const aiBtn = document.createElement('div');
+      aiBtn.className = 'food-results-separator';
+      aiBtn.style.cursor = 'pointer';
+      aiBtn.innerHTML = `<span onclick="askAIForFood('${rawQ.replace(/'/g, "\\'")}')" style="color:#a78bfa;cursor:pointer">🤖 Pas satisfait ? Demander à l'IA Gemini</span>`;
+      container.appendChild(aiBtn);
+    }
+  }, 600);
+}
+
+// ==========================================
+// GEMINI AI INTEGRATION
+// ==========================================
+async function askAIForFood(foodName) {
+  let apiKey = localStorage.getItem('gemini_api_key');
+  if (!apiKey) {
+    apiKey = prompt("🤖 Pour utiliser l'IA Gemini, veuillez entrer votre clé API (obtenable sur aistudio.google.com) :");
+    if (!apiKey) return;
+    localStorage.setItem('gemini_api_key', apiKey);
+  }
+
+  const btn = document.getElementById('btn-ask-ai');
+  if (btn) btn.innerHTML = '⏳ Analyse en cours...';
+
+  try {
+    const promptText = `Donne-moi les valeurs nutritionnelles moyennes pour 100g de l'aliment/plat suivant : "${foodName}".
+Réponds UNIQUEMENT avec un objet JSON strict au format exact suivant, sans aucun autre texte (n'inclus pas de balises markdown comme \`\`\`json) :
+{"cal": 120, "prot": 10.5, "carbs": 15.2, "fat": 3.1}`;
+
+    const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: promptText }] }]
+      })
+    });
+
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error.message);
+
+    const text = data.candidates[0].content.parts[0].text.trim().replace(/```json/g, '').replace(/```/g, '');
+    const nut = JSON.parse(text);
+
+    const aiFood = {
+      name: foodName + ' (Estimé)',
+      cal: +(nut.cal || 0).toFixed(1),
+      prot: +(nut.prot || 0).toFixed(1),
+      carbs: +(nut.carbs || 0).toFixed(1),
+      fat: +(nut.fat || 0).toFixed(1),
+      emoji: '✨', source: 'gemini'
+    };
+
+    const container = document.getElementById('food-results');
+    container.innerHTML = '';
+    renderFoodResults([aiFood], container);
+    addToFoodCache(aiFood); // On le met en cache pour les prochaines fois !
+    toast('✅ Valeurs estimées par IA');
+
+  } catch (err) {
+    console.error('Gemini error:', err);
+    alert("Erreur avec l'IA. Vérifiez votre clé API ou réessayez.");
+    if (err.message.includes('API_KEY_INVALID')) localStorage.removeItem('gemini_api_key');
+    if (btn) btn.innerHTML = '🤖 Demander à l\'IA (Gemini)';
+  }
 }
 
 function renderFoodResults(results, container) {
