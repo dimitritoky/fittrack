@@ -3,12 +3,15 @@
    Cache-first strategy for offline use
    ========================================== */
 
-const CACHE_NAME = 'fittrack-v1';
+const CACHE_NAME = 'fittrack-v2';
 const ASSETS = [
   './',
   './index.html',
   './style.css',
+  './mobile.css',
   './app.js',
+  './firebase-config.js',
+  './firebase-sync.js',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
