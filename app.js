@@ -426,11 +426,17 @@ function renderMeals() {
   document.getElementById('daily-total-cal').textContent = Math.round(total) + ' kcal';
 
   const goal = getCalorieGoal();
+  const out = getDayActivityCals(date);
   const vsGoalEl = document.getElementById('daily-cal-vs-goal');
   if (goal > 0) {
-    const diff = total - goal;
-    vsGoalEl.textContent = ` / Objectif: ${goal} kcal (${diff >= 0 ? '+' : ''}${Math.round(diff)} kcal)`;
-    vsGoalEl.style.color = Math.abs(diff) < 200 ? '#3dffa0' : diff > 0 ? '#ff8c42' : '#4fc3f7';
+    const budgetTotal = goal + out;
+    const remaining = Math.round(budgetTotal - total);
+    
+    if (remaining >= 0) {
+      vsGoalEl.innerHTML = `<br><span style="color: #3dffa0; font-weight:600;">✅ Restant : ${remaining} kcal</span>`;
+    } else {
+      vsGoalEl.innerHTML = `<br><span style="color: #ff5e7a; font-weight:600;">⚠️ Dépassement : ${Math.abs(remaining)} kcal</span>`;
+    }
   }
 
   // Macros
@@ -893,11 +899,21 @@ function navigateTo(page) {
 function getToday() {
   return new Date().toISOString().split('T')[0];
 }
+function getNowLocal() {
+  const d = new Date();
+  d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+  return d.toISOString().slice(0, 16);
+}
 function formatDateShort(dateStr) {
-  const d = new Date(dateStr + 'T12:00:00');
+  const isDateTime = dateStr.includes('T');
+  const d = new Date(isDateTime ? dateStr : dateStr + 'T12:00:00');
   return d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' });
 }
 function formatDateFr(dateStr) {
+  if (dateStr.includes('T')) {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }).replace(',', ' à');
+  }
   const d = new Date(dateStr + 'T12:00:00');
   return d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
 }
@@ -919,7 +935,10 @@ function init() {
   const today = getToday();
   ['input-date-mesure', 'alim-date', 'act-date'].forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.value = today;
+    if (el) {
+      if (el.type === 'datetime-local') el.value = getNowLocal();
+      else el.value = today;
+    }
   });
 
   // Topbar date
