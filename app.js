@@ -507,18 +507,25 @@ function closeFoodModal(event) {
 let searchTimeout = null;
 let selectedFoodBase = null;
 
+// Normalise les accents et ligatures pour la recherche
+function normalizeSearch(str) {
+  return str.toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // supprime les accents
+    .replace(/œ/g, 'oe').replace(/æ/g, 'ae'); // ligatures
+}
+
 function searchFood() {
-  const q = document.getElementById('food-search').value.toLowerCase().trim();
+  const q = normalizeSearch(document.getElementById('food-search').value.trim());
   const container = document.getElementById('food-results');
   container.innerHTML = '';
   if (q.length < 2) return;
 
   // 1. Cherche dans la base locale
-  const localResults = FOOD_DB.filter(f => f.name.toLowerCase().includes(q));
+  const localResults = FOOD_DB.filter(f => normalizeSearch(f.name).includes(q));
   
   // 2. Cherche dans le cache hors-ligne
   const cacheResults = foodCache.filter(f =>
-    f.name.toLowerCase().includes(q) &&
+    normalizeSearch(f.name).includes(q) &&
     !localResults.find(l => l.name.toLowerCase() === f.name.toLowerCase())
   );
 
