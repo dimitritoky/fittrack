@@ -213,7 +213,7 @@ async function loadFromFirestore() {
 
     // Met à jour le state global et recharge l'UI
     window.state = newState;
-    window.saveState();
+    localStorage.setItem('fittrack_data', JSON.stringify(newState));
     window.refreshAllUI();
 
     updateSyncStatus('ok');
