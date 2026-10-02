@@ -3,7 +3,7 @@
    Cache-first strategy for offline use
    ========================================== */
 
-const CACHE_NAME = 'fittrack-v6';
+const CACHE_NAME = 'fittrack-v7';
 const ASSETS = [
   './',
   './index.html',

@@ -684,8 +684,10 @@ Réponds UNIQUEMENT avec un objet JSON strict au format exact suivant, sans aucu
 
   } catch (err) {
     console.error('Gemini error:', err);
-    alert("Erreur avec l'IA. Vérifiez votre clé API ou réessayez.");
-    if (err.message.includes('API_KEY_INVALID')) localStorage.removeItem('gemini_api_key');
+    alert("Erreur avec l'IA : " + err.message + "\nSi le problème persiste avec la clé API, rechargez la page pour en saisir une nouvelle.");
+    if (err.message.includes('API_KEY_INVALID') || err.message.includes('key')) {
+      localStorage.removeItem('gemini_api_key');
+    }
     if (btn) btn.innerHTML = '🤖 Demander à l\'IA (Gemini)';
   }
 }
