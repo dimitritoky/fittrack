@@ -555,7 +555,7 @@ function searchFood() {
 
     // --- SOURCE 1 : OpenFoodFacts (produits packagés) ---
     try {
-      const r1 = await fetch(`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(rawQ)}&search_simple=1&action=process&json=1&page_size=6&fields=product_name_fr,product_name,nutriments&lc=fr&cc=fr`);
+      const r1 = await fetch(`https://world.openfoodfacts.org/api/v2/search?search_terms=${encodeURIComponent(rawQ)}&fields=product_name,product_name_fr,nutriments&page_size=6`);
       const d1 = await r1.json();
       const off = (d1.products || []).filter(p => {
         const name = p.product_name_fr || p.product_name;
