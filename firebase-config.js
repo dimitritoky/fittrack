@@ -26,13 +26,14 @@
    ========================================== */
 
 const FIREBASE_CONFIG = {
-  apiKey:            "COLLE_TON_API_KEY_ICI",
-  authDomain:        "TON_PROJECT_ID.firebaseapp.com",
-  projectId:         "TON_PROJECT_ID",
-  storageBucket:     "TON_PROJECT_ID.appspot.com",
-  messagingSenderId: "TON_SENDER_ID",
-  appId:             "TON_APP_ID",
+  apiKey:            "AIzaSyDyn065Y8OXrPKLxLd1SmkekOTXpLkmOBQ",
+  authDomain:        "fittrack-dimitri.firebaseapp.com",
+  projectId:         "fittrack-dimitri",
+  storageBucket:     "fittrack-dimitri.firebasestorage.app",
+  messagingSenderId: "366186170683",
+  appId:             "1:366186170683:web:441fb07c82928a4a124f1e",
 };
+
 
 // ✅ Export pour firebase-sync.js
 window.FIREBASE_CONFIG = FIREBASE_CONFIG;
